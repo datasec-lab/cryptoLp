@@ -1,28 +1,26 @@
 #!/bin/bash
 
-# Check if current directory is a git repository
-if git rev-parse --git-dir > /dev/null 2>&1; then
-    echo "This directory is a Git repository."
-else
-    echo "This directory is NOT a Git repository."
-    echo "Initializing a new Git repository and setting up submodules..."
-
-    # Initialize a new Git repository
-    git init
-
-    # Add submodules
+# Add and initialize SEAL submodule if missing
+if [ ! -d "SCI/extern/SEAL" ]; then
+    echo "Adding SEAL submodule..."
     git submodule add https://github.com/microsoft/SEAL.git SCI/extern/SEAL
-    git submodule add https://gitlab.com/libeigen/eigen.git SCI/extern/eigen
-
-    # Initialize and update submodules recursively
-    git submodule update --init --recursive
-
-    # Checkout specific commits
     pushd SCI/extern/SEAL && git checkout 1d5c816 && popd
-    pushd SCI/extern/eigen && git checkout 603e213 && popd
-
-    echo "Submodules are set up and checked out to specified commits."
+else
+    echo "SEAL submodule already exists."
 fi
+
+# Add and initialize Eigen submodule if missing
+if [ ! -d "SCI/extern/eigen" ]; then
+    echo "Adding Eigen submodule..."
+    git submodule add https://gitlab.com/libeigen/eigen.git SCI/extern/eigen
+    pushd SCI/extern/eigen && git checkout 603e213 && popd
+else
+    echo "Eigen submodule already exists."
+fi
+
+# Update all submodules recursively
+git submodule update --init --recursive
+
 
 mkdir -p build
 cd build

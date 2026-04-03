@@ -128,3 +128,6 @@ build
 # End of https://www.toptal.com/developers/gitignore/api/cmake,linux,macos,windows,c++
 
 SCI/extern/
+
+*.csv
+notes.md

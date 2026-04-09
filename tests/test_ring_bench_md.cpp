@@ -16,7 +16,8 @@ int bw_x = 32;
 
 uint64_t mask_x = (bw_x == 64 ? -1 : ((1ULL << bw_x) - 1));
 
-void test_md(uint64_t *x, uint64_t *y) {
+void test_md(uint64_t *x, uint64_t *y)
+{
   uint64_t *z = new uint64_t[dim];
 
   uint64_t comm_start = math->iopack->get_comm();
@@ -26,13 +27,16 @@ void test_md(uint64_t *x, uint64_t *y) {
   STOP_TIMER("MD");
   uint64_t comm_end = math->iopack->get_comm();
   double comm = (comm_end - comm_start) / (1.0 * (1ULL << 20)); // In MB
-  cout << "Total Communication for MD: " << comm << " mb" << endl;
+  cout << "Total Communication for MD: " << comm << " MB" << endl;
 
-  if (party == ALICE) {
+  if (party == ALICE)
+  {
     iopack->io->send_data(x, dim * sizeof(uint64_t));
     iopack->io->send_data(y, dim * sizeof(uint64_t));
     iopack->io->send_data(z, dim * sizeof(uint64_t));
-  } else { // party == BOB
+  }
+  else
+  { // party == BOB
     uint64_t *x0 = new uint64_t[dim];
     uint64_t *y0 = new uint64_t[dim];
     uint64_t *z0 = new uint64_t[dim];
@@ -40,7 +44,8 @@ void test_md(uint64_t *x, uint64_t *y) {
     iopack->io->recv_data(y0, dim * sizeof(uint64_t));
     iopack->io->recv_data(z0, dim * sizeof(uint64_t));
 
-    for (int i = 0; i < dim; i++) {
+    for (int i = 0; i < dim; i++)
+    {
       uint64_t X = (x[i] + x0[i]) & mask_x;
       uint64_t Y = (y[i] + y0[i]) & mask_x;
       int64_t D = signed_val(X - Y, bw_x);
@@ -59,7 +64,8 @@ void test_md(uint64_t *x, uint64_t *y) {
   delete[] z;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ArgMapping amap;
   amap.arg("r", party, "Role of party: ALICE = 1; BOB = 2");
   amap.arg("p", port, "Port Number");
@@ -68,7 +74,13 @@ int main(int argc, char **argv) {
   amap.parse(argc, argv);
 
   iopack = new IOPack(party, port, address);
+  uint64_t comm_before = iopack->get_comm();
+  INIT_TIMER;
+  START_TIMER;
   otpack = new OTPack(iopack, party);
+  STOP_TIMER("OTPack setup");
+uint64_t comm_after = iopack->get_comm();
+  cout << "OTPack setup communication: " << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
 
   math = new MathFunctions(party, iopack, otpack);
 
@@ -80,7 +92,8 @@ int main(int argc, char **argv) {
   prg.random_data(x, dim * sizeof(uint64_t));
   prg.random_data(y, dim * sizeof(uint64_t));
 
-  for (int i = 0; i < dim; i++) {
+  for (int i = 0; i < dim; i++)
+  {
     x[i] &= mask_x;
     y[i] &= mask_x;
   }

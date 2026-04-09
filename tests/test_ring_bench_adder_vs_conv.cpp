@@ -73,8 +73,14 @@ int main(int argc, char **argv) {
   amap.parse(argc, argv);
 
   iopack = new IOPack(party, port, address);
+  uint64_t comm_before = iopack->get_comm();
+  INIT_TIMER;
+  START_TIMER;
   otpack = new OTPack(iopack, party);
 
+  STOP_TIMER("OTPack setup");
+uint64_t comm_after = iopack->get_comm();
+  cout << "OTPack setup communication: " << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
   math = new MathFunctions(party, iopack, otpack);
 
   const int num_runs = 10;

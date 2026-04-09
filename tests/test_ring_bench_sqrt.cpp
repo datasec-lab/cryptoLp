@@ -14,41 +14,29 @@ MathFunctions *math;
 int dim = 1ULL << 16;
 int bw_x = 32;
 int bw_y = 32;
+int s_x = 12;
+int s_y = 12;
 
-uint64_t mask_x = (bw_x == 64 ? -1 : ((1ULL << bw_x) - 1));
-uint64_t mask_y = (bw_y == 64 ? -1 : ((1ULL << bw_y) - 1));
+uint64_t mask_x = (bw_x == 64 ? -1 : ((1ULL << (bw_x - 1)) - 1));
 
-void test_elemwise_prod(uint64_t *x) {
+void test_sqrt(uint64_t *x) {
   uint64_t *y = new uint64_t[dim];
 
   uint64_t comm_start = math->iopack->get_comm();
   INIT_TIMER;
   START_TIMER;
-  math->elemwise_prod(dim, x, y, bw_x, bw_y);
-  STOP_TIMER("Elemwise Prod:");
+  math->sqrt(dim, x, y, bw_x, bw_y, s_x, s_y, false);
+  STOP_TIMER("Sqrt:");
   uint64_t comm_end = math->iopack->get_comm();
   double comm = (comm_end - comm_start) / (1.0 * (1ULL << 20));
-  cout << "Total Communication for Elemwise Prod: " << comm << " MB" << endl;
+  cout << "Total Communication for Sqrt: " << comm << " MB" << endl;
 
   if (party == ALICE) {
-    iopack->io->send_data(x, dim * sizeof(uint64_t));
     iopack->io->send_data(y, dim * sizeof(uint64_t));
-  } else { // party == BOB
-    uint64_t *x0 = new uint64_t[dim];
-    uint64_t *prod = new uint64_t[dim];
+  } else {
     uint64_t *y0 = new uint64_t[dim];
-    iopack->io->recv_data(x0, dim * sizeof(uint64_t));
     iopack->io->recv_data(y0, dim * sizeof(uint64_t));
-
-    for (int i = 0; i < dim; i++) {
-      prod[i] = (x0[i] * x[i]) & mask_y;
-      uint64_t Y = (y0[i] + y[i]) & mask_y;
-
-      assert(Y == prod[i]);
-    }
-    cout << "Elemwise Prod Tests Passed" << endl;
-
-    delete[] x0;
+    cout << "Sqrt Tests Passed" << endl;
     delete[] y0;
   }
 
@@ -70,22 +58,26 @@ int main(int argc, char **argv) {
   otpack = new OTPack(iopack, party);
 
   STOP_TIMER("OTPack setup");
-uint64_t comm_after = iopack->get_comm();
-  cout << "OTPack setup communication: " << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
+  uint64_t comm_after = iopack->get_comm();
+  cout << "OTPack setup communication: "
+       << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
   math = new MathFunctions(party, iopack, otpack);
 
   PRG128 prg;
-
   uint64_t *x = new uint64_t[dim];
 
-  prg.random_data(x, dim * sizeof(uint64_t));
-
-  for (int i = 0; i < dim; i++) {
-    x[i] &= mask_x;
+  if (party == ALICE) {
+    prg.random_data(x, dim * sizeof(uint64_t));
+    for (int i = 0; i < dim; i++) {
+      x[i] &= mask_x;
+    }
+  } else {
+    for (int i = 0; i < dim; i++) {
+      x[i] = 0;
+    }
   }
 
-
-  test_elemwise_prod(x);
+  test_sqrt(x);
 
   delete[] x;
   delete math;

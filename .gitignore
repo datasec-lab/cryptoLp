@@ -128,3 +128,17 @@ build
 # End of https://www.toptal.com/developers/gitignore/api/cmake,linux,macos,windows,c++
 
 SCI/extern/
+
+*.csv
+report.md
+notes.md
+run_netem_local.sh
+cryptonorm-evals/
+
+# Local experiment artifacts
+alice_bench_*.log
+bob_bench_*.log
+wan_alice_*.log
+wan_bob_*.log
+wan_attached_report.md
+wan_report_table.md

@@ -26,7 +26,7 @@ void test_msb(uint64_t *x) {
   aux->MSB(x, y, dim, bw_x);
   STOP_TIMER("MSB");
   double total_comm = (iopack->get_comm() - comm_start) / (1.0 * (1ULL << 20)); // In MB
-  cout << "Total Communication for MSB: " << total_comm << " mb" << endl;
+  cout << "Total Communication for MSB: " << total_comm << " MB" << endl;
   
   if (party == ALICE) {
     iopack->io->send_data(x, dim * sizeof(uint64_t));
@@ -59,8 +59,14 @@ int main(int argc, char **argv) {
   amap.arg("ip", address, "IP Address of server (ALICE)");
   amap.parse(argc, argv);
 
-  iopack = new IOPack(party, port, "127.0.0.1");
+  iopack = new IOPack(party, port, address);
+  uint64_t comm_before = iopack->get_comm();
+  INIT_TIMER;
+  START_TIMER;
   otpack = new OTPack(iopack, party);
+  STOP_TIMER("OTPack setup");
+uint64_t comm_after = iopack->get_comm();
+  cout << "OTPack setup communication: " << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
 
   aux = new AuxProtocols(party, iopack, otpack);
 

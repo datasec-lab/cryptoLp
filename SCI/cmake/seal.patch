@@ -11,3 +11,15 @@ index a811237..18908bf 100644
  #define SEAL_POLY_MOD_DEGREE_MIN 2
  
  // Bounds for the plaintext modulus
+diff --git a/native/src/seal/util/locks.h b/native/src/seal/util/locks.h
+index 818e56e..fc4e7d0 100644
+--- a/native/src/seal/util/locks.h
++++ b/native/src/seal/util/locks.h
+@@ -7,6 +7,7 @@
+ 
+ #include <functional>
+ #include <shared_mutex>
++#include <mutex>
+ 
+ namespace seal
+ {

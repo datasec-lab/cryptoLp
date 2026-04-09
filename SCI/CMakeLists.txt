@@ -32,13 +32,12 @@ add_subdirectory(src)
 # endif()
 
 set(INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
-set(BUILD_DIR "${PROJECT_SOURCE_DIR}/build")
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/SCIConfig.cmake.in"
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/SCIConfig.cmake"
 	INSTALL_DESTINATION lib/cmake/SCI
-    PATH_VARS INSTALL_DIR BUILD_DIR)
+    PATH_VARS INSTALL_DIR)
 install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SCIConfig.cmake"
         DESTINATION lib/cmake/SCI)

@@ -25,12 +25,6 @@ sudo apt install -y \
 	libssl-dev libgmp-dev
 ```
 
-### macOS
-
-```bash
-brew install cmake git openssl@3 gmp
-```
-
 ## Build Instructions
 
 To compile the benchmark binaries:

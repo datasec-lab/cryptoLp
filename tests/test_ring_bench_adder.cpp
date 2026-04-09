@@ -26,7 +26,7 @@ void test_adder(uint64_t *x, uint64_t *y) {
   STOP_TIMER("Adder");
   uint64_t comm_end = math->iopack->get_comm();
   double comm = (comm_end - comm_start) / (1.0 * (1ULL << 20)); // In MB
-  cout << "Total Communication for Adder: " << comm << " mb" << endl;
+  cout << "Total Communication for Adder: " << comm << " MB" << endl;
 
   if (party == ALICE) {
     iopack->io->send_data(x, dim * sizeof(uint64_t));
@@ -68,8 +68,14 @@ int main(int argc, char **argv) {
   amap.parse(argc, argv);
 
   iopack = new IOPack(party, port, address);
+  uint64_t comm_before = iopack->get_comm();
+  INIT_TIMER;
+  START_TIMER;
   otpack = new OTPack(iopack, party);
 
+  STOP_TIMER("OTPack setup");
+uint64_t comm_after = iopack->get_comm();
+  cout << "OTPack setup communication: " << (comm_after - comm_before) / (1024.0 * 1024.0) << " MB" << endl;
   math = new MathFunctions(party, iopack, otpack);
 
   PRG128 prg;

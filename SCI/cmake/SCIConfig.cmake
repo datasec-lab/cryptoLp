@@ -34,8 +34,16 @@ find_dependency(GMP REQUIRED)
 find_dependency(Threads REQUIRED)
 
 set_and_check(INSTALL_DIR "${PACKAGE_PREFIX_DIR}")
-find_dependency(Eigen3 REQUIRED PATHS "/home/ala22014/github/cryptoLp/SCI/build/../extern/eigen/build" NO_DEFAULT_PATH)
-find_dependency(SEAL REQUIRED PATHS "/home/ala22014/github/cryptoLp/SCI/build" NO_DEFAULT_PATH)
+set(_SCI_EIGEN_HINTS
+	"${CMAKE_CURRENT_LIST_DIR}/../extern/eigen/build"
+	"${CMAKE_CURRENT_LIST_DIR}/../../../../../SCI/extern/eigen/build")
+
+set(_SCI_SEAL_HINTS
+	"${CMAKE_CURRENT_LIST_DIR}/../build"
+	"${CMAKE_CURRENT_LIST_DIR}/../../../../../SCI/build")
+
+find_dependency(Eigen3 REQUIRED PATHS ${_SCI_EIGEN_HINTS} NO_DEFAULT_PATH)
+find_dependency(SEAL REQUIRED PATHS ${_SCI_SEAL_HINTS} NO_DEFAULT_PATH)
 find_dependency(OpenMP REQUIRED)
 
 # Add the targets file

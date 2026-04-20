@@ -32,13 +32,7 @@ clone_if_missing "$SEAL_DIR" https://github.com/microsoft/SEAL.git "$SEAL_COMMIT
 clone_if_missing "$EIGEN_DIR" https://gitlab.com/libeigen/eigen.git "$EIGEN_COMMIT"
 
 # Apply SCI compatibility fixes to SEAL source (idempotent).
-SEAL_DEFINES="$SEAL_DIR/native/src/seal/util/defines.h"
 SEAL_LOCKS="$SEAL_DIR/native/src/seal/util/locks.h"
-
-if grep -q "SEAL_POLY_MOD_DEGREE_MAX 32768" "$SEAL_DEFINES"; then
-    echo "Patching SEAL poly modulus bound"
-    sed -i 's/SEAL_POLY_MOD_DEGREE_MAX 32768/SEAL_POLY_MOD_DEGREE_MAX 65536/' "$SEAL_DEFINES"
-fi
 
 if grep -q "#include <shared_mutex>" "$SEAL_LOCKS" && ! grep -q "#include <mutex>" "$SEAL_LOCKS"; then
     echo "Patching SEAL locks header for GCC compatibility"
